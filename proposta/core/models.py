@@ -1,6 +1,7 @@
 # from __future__ import unicode_literals
 from django.db import models
 from localflavor.br.br_states import STATE_CHOICES
+from django.utils.safestring import mark_safe
 
 # Create your models here.
 class Cliente(models.Model):
@@ -34,6 +35,9 @@ class Proposta(models.Model):
     dominio = models.CharField(u'Domínio do Site', blank=True, max_length=200, help_text='URL - exe: seudomonio.com.br')
     dominio_login = models.CharField(u'Acesso ao Admin', blank=True, max_length=200, help_text='URL - exe: seu dominio/admin')
     senha = models.CharField(u'Senha', max_length=30, blank=True)
+
+    def imprimir(self):
+        return mark_safe("""<a href=\"/proposta/%s/\" target="_blank"><img src=\"/static/images/b_print.png\"></a>""" % self.id)
 
     class Meta:
         ordering = ['-data']

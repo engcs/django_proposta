@@ -9,10 +9,10 @@ class PropostaAdmin(admin.ModelAdmin):
     # inlines = [
     #             PagamentoInline
     #           ]
-    list_display = ['cliente', 'data', 'pago', 'valor', ] # 'imprimir',
+    list_display = ['cliente', 'data', 'pago', 'valor', 'imprimir', ]
     search_fields = ['cliente__nome']
     list_filter = ['cliente__nome', 'data', 'situacao']
-    # list_editable = ['valor']
+    list_editable = ['valor']
     list_per_page = 30
     save_on_top = True
 
