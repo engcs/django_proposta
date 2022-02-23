@@ -1,20 +1,50 @@
 from django.contrib import admin
+from django.utils.html import format_html
+from django.contrib.admin.views.main import ChangeList
 from .models import Cliente, Proposta #, DescricaoPagamento, Pagamento
+from django.db.models import Sum, Avg
 # Register your models here.
+
+class TotalChangeList(ChangeList):
+    fields_to_total = ['valor', ]
+
+    def get_total_values(self, queryset):
+        total = Proposta()
+        total.custom_alias_name = "Totals"
+        for field in self.fields_to_total:
+            setattr(total, field, queryset.aggregate(total=Sum('valor'))['total'])
+            return total
+
+    def get_results(self, request):
+        super(TotalChangeList, self).get_results(request)
+        total = self.get_total_values(self.queryset)
+        len(self.result_list)
+        self.result_list._result_cache.append(total)
+
+
 class PropostaAdmin(admin.ModelAdmin):
 
-    # def get_changelist(self, request, **kwargs):
-    #     return TotalChangeList
+    def get_changelist(self, request, **kwargs):
+        return TotalChangeList
     #
     # inlines = [
     #             PagamentoInline
     #           ]
-    list_display = ['cliente', 'data', 'pago', 'valor', 'imprimir', ]
+    list_display = ['cliente', 'data', 'status', 'pago', 'valor', 'imprimir', ]
     search_fields = ['cliente__nome']
     list_filter = ['cliente__nome', 'data', 'situacao']
     list_editable = ['valor']
     list_per_page = 30
     save_on_top = True
+
+    def status(self, obj):
+        if obj.situacao == 'Pago':
+            color = 'green'
+        elif obj.situacao == 'Atrasado':
+            color = 'red'
+        else:
+            color = 'orange'
+        return format_html('<strong><p style="color: {}">{}</p></strong>'.format(color, obj.situacao))
 
 class ClienteAdmin(admin.ModelAdmin):
     pass
